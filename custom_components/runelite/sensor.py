@@ -15,8 +15,8 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     # List of sensor types
     sensor_types = ["herbs", "trees", "allotments"]
     
-    # Use the internal URL from Home Assistant configuration
-    internal_url = hass.config.internal_url
+    # Use the specified internal URL
+    internal_url = "https://homeassistant.local:8123"
 
     # Fetch token from the configuration entry
     token = config_entry.data.get("token")
