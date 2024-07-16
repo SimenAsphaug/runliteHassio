@@ -24,6 +24,12 @@ class RuneLiteConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             data_schema=vol.Schema(
                 {
                     vol.Required("name"): str,
+                    vol.Required("token"): str,
                 }
             ),
+            description_placeholders={
+                "name": "The name of the RuneLite instance.",
+                "token": "Your Home Assistant long-lived access token."
+            },
+            errors={},
         )
