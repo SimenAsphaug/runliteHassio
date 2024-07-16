@@ -15,7 +15,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     # List of sensor types
     sensor_types = ["herbs", "trees", "allotments"]
     
-    # Use the specified internal URL
+    # Explicitly set the internal URL
     internal_url = "https://homeassistant.local:8123"
 
     # Fetch token from the configuration entry
@@ -58,7 +58,9 @@ class RuneLiteSensor(SensorEntity):
         try:
             url = f"{self._home_assistant_url}/api/states/sensor.farming_patch_{self._patch_type}"
             headers = {"Authorization": f"Bearer {self._token}"}
-            async with self._session.get(url, headers=headers) as response:
+            _LOGGER.debug(f"Fetching URL: {url}")
+            _LOGGER.debug(f"With headers: {headers}")
+            async with self._session.get(url, headers=headers, ssl=False) as response:
                 content_type = response.headers.get('Content-Type')
                 _LOGGER.debug(f"Content-Type of response: {content_type}")
                 if content_type == 'application/json':
