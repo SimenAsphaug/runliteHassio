@@ -1,4 +1,5 @@
 import logging
+import aiohttp
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
@@ -58,8 +59,15 @@ class RuneLiteSensor(SensorEntity):
             url = f"{self._home_assistant_url}/api/states/sensor.farming_patch_{self._patch_type}"
             headers = {"Authorization": f"Bearer {self._token}"}
             async with self._session.get(url, headers=headers) as response:
-                data = await response.json()
-                self._state = data["state"]
-                self._attributes = data["attributes"]
-        except Exception as e:
-            _LOGGER.error("Failed to update sensor: %s", e)
+                content_type = response.headers.get('Content-Type')
+                _LOGGER.debug(f"Content-Type of response: {content_type}")
+                if content_type == 'application/json':
+                    data = await response.json()
+                    self._state = data["state"]
+                    self._attributes = data["attributes"]
+                else:
+                    _LOGGER.error(f"Unexpected content type: {content_type}")
+                    text = await response.text()
+                    _LOGGER.debug(f"Response text: {text}")
+        except aiohttp.ClientError as e:
+            _LOGGER.error(f"Failed to update sensor: {e}")
