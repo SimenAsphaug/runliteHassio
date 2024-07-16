@@ -1,0 +1,10 @@
+{
+    "domain": "runelite",
+    "name": "RuneLite Integration",
+    "version": "1.0.0",
+    "documentation": "https://github.com/yourusername/runelite-hassio",
+    "requirements": [],
+    "dependencies": [],
+    "codeowners": ["@yourusername"]
+  }
+  
