@@ -1,6 +1,7 @@
 import logging
 import requests
 from homeassistant.components.sensor import SensorEntity
+from homeassistant.helpers import aiohttp_client  # Add this import statement
 
 from .const import DOMAIN
 
@@ -10,12 +11,13 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     """Set up the RuneLite sensor from a config entry."""
     config = hass.data[DOMAIN][config_entry.entry_id]
     session = aiohttp_client.async_get_clientsession(hass)
-    sensors = [
-        RuneLiteSensor(config["name"], config["home_assistant_url"], config["token"], session, "herbs"),
-        RuneLiteSensor(config["name"], config["home_assistant_url"], config["token"], session, "trees"),
-        RuneLiteSensor(config["name"], config["home_assistant_url"], config["token"], session, "allotments"),
-    ]
-    async_add_entities(sensors)
+    
+    # List of sensor types
+    sensor_types = ["herbs", "trees", "allotments"]
+    
+    # Create sensor entities for each type
+    sensors = [RuneLiteSensor(config["name"], hass.config.api.base_url, hass.config.api.token, session, sensor_type) for sensor_type in sensor_types]
+    async_add_entities(sensors, update_before_add=True)
 
 
 class RuneLiteSensor(SensorEntity):
