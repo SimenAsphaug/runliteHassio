@@ -1,25 +1,30 @@
 import logging
-import requests
 from homeassistant.components.sensor import SensorEntity
+
+DOMAIN = "runelite"
 
 _LOGGER = logging.getLogger(__name__)
 
-def setup_platform(hass, config, add_entities, discovery_info=None):
-    """Set up the RuneLite sensor."""
-    add_entities([RuneLiteSensor()])
+async def async_setup_entry(hass, config_entry, async_add_entities):
+    """Set up the RuneLite sensor from a config entry."""
+    config = hass.data[DOMAIN][config_entry.entry_id]
+    async_add_entities([RuneLiteSensor(config["name"], config["home_assistant_url"], config["token"])])
 
 
 class RuneLiteSensor(SensorEntity):
     """Representation of a RuneLite sensor."""
 
-    def __init__(self):
+    def __init__(self, name, home_assistant_url, token):
+        self._name = name
         self._state = None
         self._attributes = {}
+        self._home_assistant_url = home_assistant_url
+        self._token = token
 
     @property
     def name(self):
         """Return the name of the sensor."""
-        return "Farming Patch Example"
+        return self._name
 
     @property
     def state(self):
@@ -34,7 +39,7 @@ class RuneLiteSensor(SensorEntity):
     def update(self):
         """Fetch new state data for the sensor."""
         try:
-            response = requests.get("http://runelite.local/api/farming")
+            response = requests.get(f"{self._home_assistant_url}/api/states/sensor.farming_patch_example", headers={"Authorization": f"Bearer {self._token}"})
             data = response.json()
             self._state = data["state"]
             self._attributes = data["attributes"]

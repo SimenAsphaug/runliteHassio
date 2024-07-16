@@ -5,6 +5,7 @@
     "documentation": "https://github.com/SimenAsphaug/runliteHassio",
     "requirements": [],
     "dependencies": [],
-    "codeowners": ["@simenasphaug"]
+    "codeowners": ["@simenasphaug"],
+    "config_flow": true
   }
   
