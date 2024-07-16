@@ -1,7 +1,6 @@
 import logging
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
-from homeassistant.helpers import entity_registry as er
 
 from .const import DOMAIN
 
@@ -15,8 +14,14 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     # List of sensor types
     sensor_types = ["herbs", "trees", "allotments"]
     
+    # Use the internal URL from Home Assistant configuration
+    internal_url = hass.config.internal_url
+
+    # Fetch token from the configuration entry
+    token = config_entry.data.get("token")
+    
     # Create sensor entities for each type
-    sensors = [RuneLiteSensor(config["name"], hass.config.internal_url, hass.config.api.token, session, sensor_type) for sensor_type in sensor_types]
+    sensors = [RuneLiteSensor(config["name"], internal_url, token, session, sensor_type) for sensor_type in sensor_types]
     async_add_entities(sensors, update_before_add=True)
 
 
