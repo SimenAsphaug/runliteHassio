@@ -1,7 +1,6 @@
 import logging
 from homeassistant.helpers import config_entry_flow
-
-DOMAIN = "runelite"
+from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 

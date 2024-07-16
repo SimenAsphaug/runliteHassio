@@ -24,8 +24,6 @@ class RuneLiteConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             data_schema=vol.Schema(
                 {
                     vol.Required("name"): str,
-                    vol.Required("home_assistant_url"): str,
-                    vol.Required("token"): str,
                 }
             ),
         )

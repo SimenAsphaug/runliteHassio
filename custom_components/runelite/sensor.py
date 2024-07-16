@@ -1,25 +1,34 @@
 import logging
+import requests
 from homeassistant.components.sensor import SensorEntity
 
-DOMAIN = "runelite"
+from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
     """Set up the RuneLite sensor from a config entry."""
     config = hass.data[DOMAIN][config_entry.entry_id]
-    async_add_entities([RuneLiteSensor(config["name"], config["home_assistant_url"], config["token"])])
+    session = aiohttp_client.async_get_clientsession(hass)
+    sensors = [
+        RuneLiteSensor(config["name"], config["home_assistant_url"], config["token"], session, "herbs"),
+        RuneLiteSensor(config["name"], config["home_assistant_url"], config["token"], session, "trees"),
+        RuneLiteSensor(config["name"], config["home_assistant_url"], config["token"], session, "allotments"),
+    ]
+    async_add_entities(sensors)
 
 
 class RuneLiteSensor(SensorEntity):
     """Representation of a RuneLite sensor."""
 
-    def __init__(self, name, home_assistant_url, token):
-        self._name = name
+    def __init__(self, name, home_assistant_url, token, session, patch_type):
+        self._name = f"{name} {patch_type.capitalize()} Patch"
         self._state = None
         self._attributes = {}
         self._home_assistant_url = home_assistant_url
         self._token = token
+        self._session = session
+        self._patch_type = patch_type
 
     @property
     def name(self):
@@ -36,12 +45,14 @@ class RuneLiteSensor(SensorEntity):
         """Return the state attributes."""
         return self._attributes
 
-    def update(self):
+    async def async_update(self):
         """Fetch new state data for the sensor."""
         try:
-            response = requests.get(f"{self._home_assistant_url}/api/states/sensor.farming_patch_example", headers={"Authorization": f"Bearer {self._token}"})
-            data = response.json()
-            self._state = data["state"]
-            self._attributes = data["attributes"]
+            url = f"{self._home_assistant_url}/api/states/sensor.farming_patch_{self._patch_type}"
+            headers = {"Authorization": f"Bearer {self._token}"}
+            async with self._session.get(url, headers=headers) as response:
+                data = await response.json()
+                self._state = data["state"]
+                self._attributes = data["attributes"]
         except Exception as e:
             _LOGGER.error("Failed to update sensor: %s", e)
