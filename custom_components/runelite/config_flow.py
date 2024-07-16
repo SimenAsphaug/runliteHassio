@@ -16,20 +16,24 @@ class RuneLiteConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     async def async_step_user(self, user_input=None):
         """Handle the initial step."""
+        errors = {}
+        
         if user_input is not None:
+            # Validate the user input here if needed
             return self.async_create_entry(title=user_input["name"], data=user_input)
+
+        # Show the form with placeholders
+        data_schema = vol.Schema({
+            vol.Required("name"): str,
+            vol.Required("token"): str,
+        })
 
         return self.async_show_form(
             step_id="user",
-            data_schema=vol.Schema(
-                {
-                    vol.Required("name"): str,
-                    vol.Required("token"): str,
-                }
-            ),
+            data_schema=data_schema,
             description_placeholders={
-                "name": "The name of the RuneLite instance.",
-                "token": "Your Home Assistant long-lived access token."
+                "name": "Enter a name for this RuneLite instance",
+                "token": "Enter your Home Assistant long-lived access token",
             },
-            errors={},
+            errors=errors,
         )
